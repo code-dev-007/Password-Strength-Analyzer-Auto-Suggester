@@ -138,15 +138,3 @@ No installation required ✅
 
 This tool is for educational purposes only.
 Do not use real passwords while testing.
-
----
-
-## 👨‍💻 Author
-
-Developed by SANATH SHUKLA
-
----
-
-## ⭐ Support
-
-If you like this project, consider giving it a ⭐ on GitHub!

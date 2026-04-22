@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — PassShield</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-icon">🔒</span>
+      <span class="logo-text">Pass<span class="accent">Shield</span></span>
+    </div>
+    <div class="header-right">
+      <span class="theme-label" id="themeLabel">Dark Mode</span>
+      <label class="toggle-switch" title="Toggle Dark/Light Mode">
+        <input type="checkbox" id="themeToggle" checked/>
+        <span class="slider">
+          <span class="slider-icon sun">☀️</span>
+          <span class="slider-icon moon">🌙</span>
+        </span>
+      </label>
+    </div>
+  </header>
+
+  <!-- ═══ NAV ═══ -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-link">
+        <span class="nav-icon">⬡</span> Analyzer
+      </a>
+      <a href="dashboard.html" class="nav-link active">
+        <span class="nav-icon">◈</span> Dashboard
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══ DASHBOARD HERO ═══ -->
+  <section class="dash-hero">
+    <div class="hero-bg">
+      <div class="grid-overlay"></div>
+      <div class="scanline"></div>
+    </div>
+    <div class="dash-hero-inner">
+      <h1 class="dash-title">SECURITY <span class="accent">DASHBOARD</span></h1>
+      <p class="dash-subtitle">Session analytics · Password history · Strength distribution</p>
+      <div class="session-badge">
+        <span class="session-dot"></span>
+        <span id="sessionClock">Session: 00:00</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DASHBOARD MAIN ═══ -->
+  <main class="dash-container">
+
+    <!-- ─── STAT CARDS ROW ─── -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-icon">🔍</div>
+        <div class="stat-body">
+          <span class="stat-value" id="statTotal">0</span>
+          <span class="stat-label">Passwords Analyzed</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-body">
+          <span class="stat-value accent" id="statBest">—</span>
+          <span class="stat-label">Best Score</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-body">
+          <span class="stat-value" id="statAvg">—</span>
+          <span class="stat-label">Average Score</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔐</div>
+        <div class="stat-body">
+          <span class="stat-value" id="statGenerated">0</span>
+          <span class="stat-label">Passwords Generated</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── STRENGTH DISTRIBUTION + HISTORY ─── -->
+    <div class="dash-grid">
+
+      <!-- Strength Distribution Chart -->
+      <div class="card dist-card">
+        <div class="card-header">
+          <span class="card-num">01</span>
+          <h2>Strength Distribution</h2>
+        </div>
+        <div class="dist-chart" id="distChart">
+          <div class="dist-bar-group">
+            <div class="dist-bar-wrap">
+              <div class="dist-bar-fill weak-fill" id="distWeak" style="height:0%"></div>
+            </div>
+            <span class="dist-bar-count" id="distWeakCount">0</span>
+            <span class="dist-bar-label weak-label">Weak</span>
+          </div>
+          <div class="dist-bar-group">
+            <div class="dist-bar-wrap">
+              <div class="dist-bar-fill fair-fill" id="distFair" style="height:0%"></div>
+            </div>
+            <span class="dist-bar-count" id="distFairCount">0</span>
+            <span class="dist-bar-label fair-label">Fair</span>
+          </div>
+          <div class="dist-bar-group">
+            <div class="dist-bar-wrap">
+              <div class="dist-bar-fill strong-fill" id="distStrong" style="height:0%"></div>
+            </div>
+            <span class="dist-bar-count" id="distStrongCount">0</span>
+            <span class="dist-bar-label strong-label">Strong</span>
+          </div>
+          <div class="dist-bar-group">
+            <div class="dist-bar-wrap">
+              <div class="dist-bar-fill vstrong-fill" id="distVstrong" style="height:0%"></div>
+            </div>
+            <span class="dist-bar-count" id="distVstrongCount">0</span>
+            <span class="dist-bar-label vstrong-label">V.Strong</span>
+          </div>
+        </div>
+
+        <!-- Security Gauge -->
+        <div class="security-gauge-wrap">
+          <div class="security-gauge">
+            <div class="gauge-arc" id="gaugeArc"></div>
+            <div class="gauge-center">
+              <span class="gauge-score" id="gaugeScore">—</span>
+              <span class="gauge-label-inner">Avg Score</span>
+            </div>
+          </div>
+          <p class="gauge-desc" id="gaugeDesc">Analyze passwords to build your report.</p>
+        </div>
+      </div>
+
+      <!-- Analysis History -->
+      <div class="card history-card">
+        <div class="card-header">
+          <span class="card-num">02</span>
+          <h2>Analysis History</h2>
+          <button class="clear-btn" id="clearHistoryBtn" title="Clear history">✕ Clear</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty">
+            <span class="empty-icon">📋</span>
+            <p>No passwords analyzed yet.</p>
+            <a href="index.html" class="go-analyze-btn">Go Analyze →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── NEW: PASSWORD TREND GRAPH ─── -->
+    <div class="card trend-card">
+      <div class="card-header">
+        <span class="card-num">03</span>
+        <h2>Password Strength Trend</h2>
+        <div class="trend-legend">
+          <span class="legend-dot" style="background:var(--accent)"></span><span class="legend-lbl">Score</span>
+          <span class="legend-dash"></span><span class="legend-lbl">3-pt Avg</span>
+        </div>
+      </div>
+      <div class="trend-wrap">
+        <canvas id="trendCanvas" class="trend-canvas"></canvas>
+      </div>
+      <p class="trend-note">Shows last 30 analyzed passwords. Dots color-coded by strength. Dashed line = 3-point moving average.</p>
+    </div>
+
+    <!-- ─── NEW: RADAR + DOWNLOAD ROW ─── -->
+    <div class="radar-download-row">
+
+      <!-- Security Radar Chart -->
+      <div class="card radar-card">
+        <div class="card-header">
+          <span class="card-num">04</span>
+          <h2>Security Radar</h2>
+        </div>
+        <div class="radar-wrap">
+          <canvas id="radarCanvas" class="radar-canvas"></canvas>
+        </div>
+        <p class="radar-note">Multi-axis view of your overall security posture based on session data.</p>
+      </div>
+
+      <!-- Download Report -->
+      <div class="card report-card">
+        <div class="card-header">
+          <span class="card-num">05</span>
+          <h2>Download Report</h2>
+        </div>
+        <div class="report-body">
+          <div class="report-preview">
+            <div class="report-icon">📄</div>
+            <div class="report-info">
+              <p class="report-title">Security Analysis Report</p>
+              <p class="report-desc">Full HTML report with all your session stats, strength distribution, analysis history, and security rating. Open in browser and use <kbd>Ctrl+P</kbd> to print as PDF.</p>
+            </div>
+          </div>
+          <div class="report-includes">
+            <span class="include-tag">✓ Summary Stats</span>
+            <span class="include-tag">✓ Score Distribution</span>
+            <span class="include-tag">✓ Full History</span>
+            <span class="include-tag">✓ Security Rating</span>
+          </div>
+          <button class="btn-download" id="downloadReportBtn">
+            <span class="btn-dl-icon">⬇</span> Download Report
+          </button>
+          <p class="report-hint">File saves as <code>PassShield_Report_YYYY-MM-DD.html</code></p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── ALGORITHM INFO ─── -->
+    <div class="card algo-card">
+      <div class="card-header">
+        <span class="card-num">06</span>
+        <h2>Algorithms &amp; Techniques Used</h2>
+      </div>
+      <div class="algo-grid">
+        <div class="algo-item">
+          <div class="algo-title">Shannon Entropy</div>
+          <div class="algo-formula">H = L × log₂(N)</div>
+          <p class="algo-desc">Measures password unpredictability. <strong>L</strong> = length, <strong>N</strong> = character pool size. Higher entropy → harder to guess.</p>
+        </div>
+        <div class="algo-item">
+          <div class="algo-title">Brute-Force Model</div>
+          <div class="algo-formula">T = Nᴸ ÷ 10⁹</div>
+          <p class="algo-desc">Estimates crack time assuming 10⁹ guesses/sec (GPU speed). Uses log₁₀ to handle astronomically large numbers.</p>
+        </div>
+        <div class="algo-item">
+          <div class="algo-title">Fisher-Yates Shuffle</div>
+          <div class="algo-formula">O(n) unbiased permutation</div>
+          <p class="algo-desc">Guarantees no positional bias in generated passwords. Each permutation has equal probability: 1/n! chance.</p>
+        </div>
+        <div class="algo-item">
+          <div class="algo-title">SHA-256 Hash (Web Crypto API)</div>
+          <div class="algo-formula">256-bit digest</div>
+          <p class="algo-desc">Cryptographic one-way function. Same input → same output always. Used in secure password storage (with salt + bcrypt in production).</p>
+        </div>
+        <div class="algo-item">
+          <div class="algo-title">Dictionary Attack Defense</div>
+          <div class="algo-formula">Blacklist ∋ commonPasswords</div>
+          <p class="algo-desc">Checks password against 40+ most commonly breached passwords. Production systems use RockYou.txt (14M+ entries).</p>
+        </div>
+        <div class="algo-item">
+          <div class="algo-title">Scoring Engine</div>
+          <div class="algo-formula">Score ∈ [0, 100]</div>
+          <p class="algo-desc">Weighted multi-criteria scoring: length, character diversity, entropy, and common-password penalty. Maps to Weak / Fair / Strong / Very Strong.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ABOUT / PROJECT INFO ─── -->
+    <div class="card about-card">
+      <div class="card-header">
+        <span class="card-num">07</span>
+        <h2>About This Project</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-info">
+          <table class="about-table">
+            <tr><td class="about-key">Project Title</td><td>Password Strength Analyzer &amp; Auto-Suggester</td></tr>
+            <tr><td class="about-key">Course</td><td>Security &amp; Cryptography — MCA</td></tr>
+            <tr><td class="about-key">Tech Stack</td><td>HTML5, CSS3 (Custom Properties), Vanilla JS (ES6+)</td></tr>
+            <tr><td class="about-key">APIs Used</td><td>Web Crypto API (SHA-256), Clipboard API, localStorage</td></tr>
+            <tr><td class="about-key">Architecture</td><td>Multi-page SPA (index + dashboard), no external libraries</td></tr>
+            <tr><td class="about-key">Year</td><td>2026</td></tr>
+          </table>
+        </div>
+        <div class="about-features">
+          <h3 class="features-title">Key Features</h3>
+          <ul class="features-list">
+            <li><span class="feat-check">✓</span> Real-time Shannon entropy calculation</li>
+            <li><span class="feat-check">✓</span> Brute-force crack time estimation (GPU model)</li>
+            <li><span class="feat-check">✓</span> SHA-256 hash preview (Web Crypto API)</li>
+            <li><span class="feat-check">✓</span> Character type breakdown with visual bars</li>
+            <li><span class="feat-check">✓</span> Fisher-Yates shuffled password generation</li>
+            <li><span class="feat-check">✓</span> Common password dictionary (blacklist)</li>
+            <li><span class="feat-check">✓</span> Password Strength Trend Graph (Canvas)</li>
+            <li><span class="feat-check">✓</span> Security Radar Chart (multi-axis analysis)</li>
+            <li><span class="feat-check">✓</span> Download HTML Security Report</li>
+            <li><span class="feat-check">✓</span> Dark / Light mode toggle (CSS variables)</li>
+            <li><span class="feat-check">✓</span> Persistent storage via localStorage</li>
+            <li><span class="feat-check">✓</span> Fully responsive — mobile to desktop</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer">
+    <p>PassShield — Password Strength Analyzer &nbsp;|&nbsp; Security &amp; Cryptography &nbsp;|&nbsp; <span class="accent">© 2026</span></p>
+  </footer>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

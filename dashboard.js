@@ -312,13 +312,14 @@ function renderRadarChart(stats) {
   canvas.height = S * dpr;
   ctx.scale(dpr, dpr);
 
-  const cx = S / 2, cy = S / 2, R = S * 0.36;
+  // Smaller polygon radius so labels have room to breathe
+  const cx = S / 2, cy = S / 2, R = S * 0.28;
 
   ctx.clearRect(0, 0, S, S);
 
   const gridColor  = isDark ? "#1e3a5f" : "#c8d5f0";
-  const textColor  = isDark ? "#7a9fc0" : "#4a6080";
-  const accentFill = isDark ? "rgba(0,212,255,0.15)" : "rgba(0,119,255,0.12)";
+  const textColor  = isDark ? "#c0e0ff" : "#0d1b3e";  // brighter for visibility
+  const accentFill = isDark ? "rgba(0,212,255,0.18)" : "rgba(0,119,255,0.14)";
   const accentLine = isDark ? "#00d4ff" : "#0077ff";
 
   // Derive radar values from stats (0–1)
@@ -388,20 +389,63 @@ function renderRadarChart(stats) {
     ctx.stroke();
   });
 
-  // Labels
-  axes.forEach((ax, i) => {
-    const p = polarPt(R * 1.22, i);
-    ctx.font      = `bold 10px 'Share Tech Mono', monospace`;
-    ctx.fillStyle = textColor;
-    ctx.textAlign = p.x < cx - 5 ? "right" : p.x > cx + 5 ? "left" : "center";
-    ctx.textBaseline = p.y < cy - 5 ? "bottom" : p.y > cy + 5 ? "top" : "middle";
-    ctx.fillText(ax.label, p.x, p.y);
+  // Labels — fixed per-quadrant positions, guaranteed no clipping
+  // 6 axes at 60° each starting from top (-90°):
+  // i=0 top, i=1 top-right, i=2 bottom-right, i=3 bottom, i=4 bottom-left, i=5 top-left
+  const M = 8; // margin from canvas edge
+  const labelPositions = [
+    { x: cx,      y: M,        align: "center", base: "top"    }, // 0 Avg Score  — top
+    { x: S - M,   y: cy * 0.3, align: "right",  base: "middle" }, // 1 V.Strong % — top-right
+    { x: S - M,   y: cy * 1.7, align: "right",  base: "middle" }, // 2 Strong %   — bottom-right
+    { x: cx,      y: S - M,    align: "center",  base: "bottom" }, // 3 Best       — bottom
+    { x: M,       y: cy * 1.7, align: "left",   base: "middle" }, // 4 Diversity  — bottom-left
+    { x: M,       y: cy * 0.3, align: "left",   base: "middle" }, // 5 Volume     — top-left
+  ];
 
-    // Percentage value
-    ctx.font      = `9px 'Share Tech Mono', monospace`;
+  axes.forEach((ax, i) => {
+    const pos = labelPositions[i];
+    const label = ax.label;
+
+    // Pill background
+    ctx.font = `bold 11px 'Share Tech Mono', monospace`;
+    const tw = ctx.measureText(label).width;
+    const th = 11;
+    const px = 7, py = 3;
+
+    let bx;
+    if (pos.align === "center") bx = pos.x - tw / 2 - px;
+    else if (pos.align === "right") bx = pos.x - tw - px;
+    else bx = pos.x - px;
+
+    let by;
+    if (pos.base === "top")    by = pos.y - py;
+    else if (pos.base === "bottom") by = pos.y - th - py;
+    else by = pos.y - th / 2 - py;
+
+    const bw = tw + px * 2, bh = th + py * 2, rr = 4;
+    ctx.fillStyle = isDark ? "rgba(5,10,22,0.85)" : "rgba(235,242,255,0.90)";
+    ctx.beginPath();
+    ctx.moveTo(bx + rr, by);
+    ctx.lineTo(bx + bw - rr, by); ctx.arcTo(bx + bw, by, bx + bw, by + rr, rr);
+    ctx.lineTo(bx + bw, by + bh - rr); ctx.arcTo(bx + bw, by + bh, bx + bw - rr, by + bh, rr);
+    ctx.lineTo(bx + rr, by + bh); ctx.arcTo(bx, by + bh, bx, by + bh - rr, rr);
+    ctx.lineTo(bx, by + rr); ctx.arcTo(bx, by, bx + rr, by, rr);
+    ctx.closePath();
+    ctx.fill();
+
+    // Label text
+    ctx.fillStyle = textColor;
+    ctx.textAlign = pos.align;
+    ctx.textBaseline = pos.base;
+    ctx.fillText(label, pos.x, pos.y);
+
+    // Percentage inside polygon near the data dot
+    ctx.font = `bold 9px 'Share Tech Mono', monospace`;
     ctx.fillStyle = accentLine;
-    const vp = polarPt(R * ax.val * 0.6 + 4, i);
-    if (ax.val > 0.1) ctx.fillText(Math.round(ax.val * 100) + "%", vp.x, vp.y);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const vp = polarPt(R * ax.val * 0.65 + 2, i);
+    if (ax.val > 0.12) ctx.fillText(Math.round(ax.val * 100) + "%", vp.x, vp.y);
   });
 
   // Center label

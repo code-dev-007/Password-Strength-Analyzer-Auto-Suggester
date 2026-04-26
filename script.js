@@ -563,3 +563,36 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
+/* ═══════════════════════════════════════════════════════════════
+   COUNTER ANIMATION — Live Stats Section
+═══════════════════════════════════════════════════════════════ */
+function animateCounters() {
+  const counters = document.querySelectorAll(".counter-num[data-target]");
+  if (!counters.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseInt(el.dataset.target, 10);
+      const duration = 1600;
+      const start = performance.now();
+      const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      function tick(now) {
+        const t = Math.min((now - start) / duration, 1);
+        el.textContent = Math.round(ease(t) * target);
+        if (t < 1) requestAnimationFrame(tick);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(tick);
+      observer.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+
+  counters.forEach(c => observer.observe(c));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  animateCounters();
+});
